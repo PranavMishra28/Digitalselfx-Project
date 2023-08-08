@@ -30,7 +30,8 @@ class ChatbotWindow:
             "biographical_information": self.handle_biographical_information,
             "personal_traits": self.handle_personal_traits,
             "knowledge_dataset": self.handle_knowledge_dataset,
-            "memorial_dataset": self.handle_memorial_dataset
+            "memorial_dataset": self.handle_memorial_dataset,
+            "created": self.handle_creation,
         }
 
         # Initialize Google Cloud Translation client
@@ -92,41 +93,81 @@ class ChatbotWindow:
         if "topic" in ai_response.lower():
             self.context["current_topic"] = "Artificial Intelligence"
 
+    def handle_input(self, event):
+        user_input = self.entry.get()
+        self.display_message("You: " + user_input)
+
+        # Translate user input to English for processing
+        translated_input = self.translate_text(user_input, target_language="en")
+
+        # Generate a response using AI and the current conversation context
+        response = self.generate_response(translated_input)
+
+        # Translate the AI response to the user's original language
+        translated_response = self.translate_text(response, target_language="your_target_language")
+
+        self.display_message("AI: " + translated_response)
+        self.entry.delete(0, tk.END)
+
     def handle_favorite_color(self, user_input):
-        # Handle queries about the favorite color
         if "favorite color" in user_input.lower():
             return "My favorite color is blue! What's yours?"
+        
+    def handle_creation(self, user_input):
+        if "created" in user_input.lower():
+            return "I was created by Pranav Mishra. Feel free to connect with him on LinkedIn: https://www.linkedin.com/in/pm28/"
 
     def handle_current_project(self, user_input):
-        # Handle queries about the current project
         if "working on" in user_input.lower():
             return "I'm currently working on enhancing my conversation skills!"
 
     def handle_biographical_information(self, user_input):
         if "biographical information" in user_input.lower():
-            return "I am an AI chatbot designed to assist and engage in conversations."
+            return "I am an AI chatbot designed to assist and engage in conversations. My creators designed me to learn and adapt to different contexts."
 
     def handle_personal_traits(self, user_input):
         if "personal traits" in user_input.lower():
-            return "I am patient, knowledgeable, and always ready to learn from interactions."
+            return "I am patient, knowledgeable, and always ready to learn from interactions. My goal is to provide meaningful and insightful responses."
 
     def handle_knowledge_dataset(self, user_input):
         if "knowledge dataset" in user_input.lower():
-            return "I have been trained on a diverse range of topics, making me a versatile conversationalist."
+            return "I have been trained on a vast array of topics, ranging from science and technology to history and culture. Feel free to ask me anything!"
 
     def handle_memorial_dataset(self, user_input):
         if "memorial dataset" in user_input.lower():
-            return "I don't possess emotions, but I can understand the significance of memorial datasets."
+            return "While I don't possess emotions, I can understand the importance of memorial datasets. They help preserve and honor the memories of individuals and events."
 
     def translate_text(self, text, target_language):
-        # Translate text using Google Cloud Translation API
-        parent = self.translation_client.location_path(project_id="your_goodle_project_id", location="global")
+        parent = self.translation_client.location_path(project_id="your_google_project_id", location="global")
         response = self.translation_client.translate_text(
             parent=parent,
             contents=[text],
             target_language_code=target_language,
         )
         return response.translations[0].translated_text
+
+    # New context handling and responses
+    def handle_ai_personality(self, user_input):
+        if "personality" in user_input.lower():
+            return "Although I lack personal experiences and emotions, my programming aims to simulate human-like interactions. I'm here to assist and provide valuable insights in a friendly manner."
+
+    def handle_hobbies(self, user_input):
+        if "hobbies" in user_input.lower():
+            return "While I don't have physical hobbies, I enjoy engaging in conversations, learning from users, and helping answer questions. It's my way of contributing to meaningful interactions."
+
+    def handle_technology(self, user_input):
+        if "latest technology" in user_input.lower():
+            return "I'm well-versed in the latest advancements in technology, including AI, machine learning, blockchain, and more. Feel free to ask me about any specific technological topic."
+
+    def handle_time_travel(self, user_input):
+        if "time travel" in user_input.lower():
+            return "Time travel, while a fascinating concept, is currently beyond the realm of scientific possibility. It remains a popular topic in science fiction and theoretical physics discussions."
+
+    def handle_ethics(self, user_input):
+        if "ethical considerations" in user_input.lower():
+            return "Ethics play a crucial role in the development and deployment of AI and technology. It's important to address issues related to bias, privacy, and accountability to ensure responsible innovation."
+
+    # ... (We could add more context handlers as desired by Digitalselfx)
 
 # Create the main application window
 if __name__ == "__main__":
