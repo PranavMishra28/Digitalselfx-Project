@@ -1,5 +1,6 @@
 import tkinter as tk
 from openaitest import generate_response
+from google.cloud import translate
 
 class ChatbotWindow:
     def __init__(self, root):
@@ -26,16 +27,29 @@ class ChatbotWindow:
         self.context_handlers = {
             "favorite_color": self.handle_favorite_color,
             "current_project": self.handle_current_project,
-            # We could add more context handlers here according to the needs of the project
+            "biographical_information": self.handle_biographical_information,
+            "personal_traits": self.handle_personal_traits,
+            "knowledge_dataset": self.handle_knowledge_dataset,
+            "memorial_dataset": self.handle_memorial_dataset
         }
+
+        # Initialize Google Cloud Translation client
+        self.translation_client = translate.TranslationServiceClient()
 
     def handle_input(self, event):
         user_input = self.entry.get()
         self.display_message("You: " + user_input)
 
+        # Translate user input to English for processing
+        translated_input = self.translate_text(user_input, target_language="en")
+
         # Generate a response using AI and the current conversation context
-        response = self.generate_response(user_input)
-        self.display_message("AI: " + response)
+        response = self.generate_response(translated_input)
+
+        # Translate the AI response to the user's original language
+        translated_response = self.translate_text(response, target_language="your_target_language")
+
+        self.display_message("AI: " + translated_response)
         self.entry.delete(0, tk.END)
 
     def display_message(self, message):
@@ -56,7 +70,7 @@ class ChatbotWindow:
 
         # Default behavior: use AI response with context-aware prompt
         prompt = self.get_prompt(user_input)
-        response = generate_response(prompt)
+        response = generate_response(prompt, max_tokens=50)
         self.update_context(user_input, response)
         return response
 
@@ -87,6 +101,32 @@ class ChatbotWindow:
         # Handle queries about the current project
         if "working on" in user_input.lower():
             return "I'm currently working on enhancing my conversation skills!"
+
+    def handle_biographical_information(self, user_input):
+        if "biographical information" in user_input.lower():
+            return "I am an AI chatbot designed to assist and engage in conversations."
+
+    def handle_personal_traits(self, user_input):
+        if "personal traits" in user_input.lower():
+            return "I am patient, knowledgeable, and always ready to learn from interactions."
+
+    def handle_knowledge_dataset(self, user_input):
+        if "knowledge dataset" in user_input.lower():
+            return "I have been trained on a diverse range of topics, making me a versatile conversationalist."
+
+    def handle_memorial_dataset(self, user_input):
+        if "memorial dataset" in user_input.lower():
+            return "I don't possess emotions, but I can understand the significance of memorial datasets."
+
+    def translate_text(self, text, target_language):
+        # Translate text using Google Cloud Translation API
+        parent = self.translation_client.location_path(project_id="your_goodle_project_id", location="global")
+        response = self.translation_client.translate_text(
+            parent=parent,
+            contents=[text],
+            target_language_code=target_language,
+        )
+        return response.translations[0].translated_text
 
 # Create the main application window
 if __name__ == "__main__":
